@@ -9,7 +9,7 @@
 #define TRUE 1
 #define FALSE 0
 
-void gemv_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
+void symm_ll_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 
 int main(int argc, char *argv[])
 {
@@ -88,8 +88,7 @@ int main(int argc, char *argv[])
       dtime = FLA_Clock();
  
       /* Comment out the below call and call your routine instead */
-      gemv_unb_var1( y, A, x );
-
+      //gemv_unb_var1( y, A, x );
       /* stop clock */
       dtime = FLA_Clock() - dtime;
     

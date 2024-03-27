@@ -3,7 +3,7 @@ FLAME_LIB  := $(HOME)/libflame/lib/libflame.a
 FLAME_INC  := $(HOME)/libflame/include
 
 # indicate where the object files are to be created
-CC         := gcc-13
+CC         := gcc
 LINKER     := $(CC)
 CFLAGS     := -O3 -Wall -I$(FLAME_INC) -I$(CBLAS_INC) -m64 -msse3 
 FFLAGS     := $(CFLAGS) 
@@ -19,7 +19,7 @@ LDFLAGS    := -m64 -lm -fopenmp
 # indicate where the FLAME include files reside
 
 # add files in which your implementations are coded
-TEST_OBJS  := driver.o gemv_unb_var1.o 
+TEST_OBJS  := driver_symm_ll.o symm_ll.o
 
 driver: $(TEST_OBJS) 
 	$(LINKER) $(TEST_OBJS) $(FLAME_LIB) $(BLAS_LIB) $(LDFLAGS) -o driver.x
