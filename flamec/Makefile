@@ -5,7 +5,7 @@ FLAME_INC  := $(HOME)/libflame/include
 # indicate where the object files are to be created
 CC         := gcc
 LINKER     := $(CC)
-CFLAGS     := -O3 -Wall -I$(FLAME_INC) -I$(CBLAS_INC) -m64 -msse3 
+CFLAGS     := -g -Wall -I$(FLAME_INC) -I$(CBLAS_INC) -m64 -msse3 
 FFLAGS     := $(CFLAGS) 
 
 # set the range of experiments to be performed
