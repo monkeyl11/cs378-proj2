@@ -19,7 +19,7 @@ LDFLAGS    := -m64 -lm -fopenmp
 # indicate where the FLAME include files reside
 
 # add files in which your implementations are coded
-TEST_OBJS  := driver_symm_ll.o symm_ll.o
+TEST_OBJS  := driver.o symm_ll.o syr2k_ln.o trsv_l.o
 
 driver: $(TEST_OBJS) 
 	$(LINKER) $(TEST_OBJS) $(FLAME_LIB) $(BLAS_LIB) $(LDFLAGS) -o driver.x
