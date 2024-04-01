@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "FLAME.h"
 
@@ -13,19 +14,19 @@ int symm_ll_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 int syr2k_ln_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 int Trsv_l_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 
-void cat1();
-void cat2();
-void cat3();
+void cat1(int write_out);
+void cat2(int write_out);
+void cat3(int write_out);
 
 int main(int argc, char *argv[])
 {
-  //cat1();
-  //cat2();
-  cat3();
+  //cat1(1);
+  cat2(1);
+  //cat3(1);
   exit(0);
 }
 
-void cat1() {
+void cat1(int write_out) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
   int m = 123;
 
@@ -55,8 +56,14 @@ void cat1() {
   fflush( stdout );
 
   i = 1;
+  FILE *out = fopen("output.txt", "w");
+  if (write_out && out == NULL) {
+    printf("Failed to open output file\n");
+    exit(1);
+  }
+  int dim; double ref_time; double our_time;
   for ( n=nfirst; n<= nlast; n+=ninc ){
-
+    dim = n;
     /* Allocate space for the matrices and vectors */
     FLA_Obj_create( FLA_DOUBLE, n, m, 1, n, &C );
     FLA_Obj_create( FLA_DOUBLE, n, m, 1, n, &Cref );
@@ -89,6 +96,7 @@ void cat1() {
     }
 
     printf( "data_ref( %d, 1:2 ) = [ %d %le ];\n", i, n, dtime_best );
+    ref_time = dtime_best;
     fflush( stdout );
     FLA_Triangularize( FLA_LOWER_TRIANGULAR, FLA_NONUNIT_DIAG, A );
 
@@ -117,6 +125,7 @@ void cat1() {
     printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
 
+    our_time = dtime_best;
     fflush( stdout );
 
     FLA_Obj_free( &C );
@@ -126,11 +135,15 @@ void cat1() {
     FLA_Obj_free( &B );
 
     i++;
+    if (write_out) {
+      fprintf(out, "%d %f %f\n", dim, our_time, ref_time);
+    }
   }
+
   FLA_Finalize( );
 }
 
-void cat2() {
+void cat2(int write_out) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
   int m = 123;
 
@@ -160,8 +173,14 @@ void cat2() {
   fflush( stdout );
 
   i = 1;
+  FILE *out = fopen("output.txt", "w");
+  if (write_out && out == NULL) {
+    printf("Failed to open output file\n");
+    exit(1);
+  }
+  int dim; double ref_time; double our_time;
   for ( n=nfirst; n<= nlast; n+=ninc ){
-
+    dim = n;
     /* Allocate space for the matrices and vectors */
     FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &C );
     FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &Cref );
@@ -195,6 +214,7 @@ void cat2() {
     }
 
     printf( "data_ref( %d, 1:2 ) = [ %d %le ];\n", i, n, dtime_best );
+    ref_time = dtime_best;
     fflush( stdout );
     FLA_Triangularize( FLA_LOWER_TRIANGULAR, FLA_NONUNIT_DIAG, Cold );
     FLA_Triangularize( FLA_LOWER_TRIANGULAR, FLA_NONUNIT_DIAG, Cref );
@@ -221,17 +241,11 @@ void cat2() {
     }
 
     diff = FLA_Max_elemwise_diff( C, Cref );
-    // FLA_Obj_show( char* header, FLA_Obj obj, char* format, char* footer );
-    // FLA_Obj_show( "A", A, "%f", "A" );
-    // FLA_Obj_show( "B", B, "%f", "B" );
-    // FLA_Obj_show( "Cold", Cold, "%f", "Cold" );
-    FLA_Obj_show( "C", C, "%f", "C" );
-    FLA_Obj_show( "Cref", Cref, "%f", "Cref" );
-  
   
     printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
 
+    our_time = dtime_best;
     fflush( stdout );
 
     FLA_Obj_free( &C );
@@ -241,13 +255,15 @@ void cat2() {
     FLA_Obj_free( &B );
 
     i++;
+    if (write_out) {
+      fprintf(out, "%d %f %f\n", dim, our_time, ref_time);
+    }
   }
   FLA_Finalize( );
 }
 
-void cat3() {
+void cat3(int write_out) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
-  int m = 123;
 
   double
     dtime, dtime_best, 
@@ -275,8 +291,14 @@ void cat3() {
   fflush( stdout );
 
   i = 1;
+  FILE *out = fopen("output.txt", "w");
+  if (write_out && out == NULL) {
+    printf("Failed to open output file\n");
+    exit(1);
+  }
+  int dim; double ref_time; double our_time;
   for ( n=nfirst; n<= nlast; n+=ninc ){
-
+    dim = n;
     /* Allocate space for the matrices and vectors */
     FLA_Obj_create( FLA_DOUBLE, n, 1, 1, 1, &x );
     FLA_Obj_create( FLA_DOUBLE, n, 1, 1, 1, &y );
@@ -311,6 +333,7 @@ void cat3() {
     }
 
     printf( "data_ref( %d, 1:2 ) = [ %d %le ];\n", i, n, dtime_best );
+    ref_time = dtime_best;
     fflush( stdout );
 
     /* Time your unblocked Variant 1 */
@@ -335,17 +358,9 @@ void cat3() {
     }
 
     diff = FLA_Max_elemwise_diff( xref, x );
-    // FLA_Obj_show( char* header, FLA_Obj obj, char* format, char* footer );
-    // FLA_Obj_show( "A", A, "%f", "A" );
-    // FLA_Obj_show( "B", B, "%f", "B" );
-    // FLA_Obj_show( "y", y, "%f", "y" );
-    // FLA_Obj_show( "L", L, "%f", "L" );
-    // FLA_Obj_show( "X", x, "%f", "X" );
-    // FLA_Obj_show( "Xref", xref, "%f", "Xref" );
-  
     printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
-
+    our_time = dtime_best;
     fflush( stdout );
 
     FLA_Obj_free( &L );
@@ -355,6 +370,9 @@ void cat3() {
     FLA_Obj_free( &y );
 
     i++;
+    if (write_out) {
+      fprintf(out, "%d %f %f\n", dim, our_time, ref_time);
+    }
   }
   FLA_Finalize( );
 }
