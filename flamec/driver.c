@@ -11,22 +11,24 @@
 #define FALSE 0
 
 int symm_ll_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
+int symm_ll_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
 int syr2k_ln_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
+int Syr2k_ln_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
 int Trsv_l_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 
-void cat1(int write_out);
-void cat2(int write_out);
-void cat3(int write_out);
+void cat1(int write_out, int is_blocked);
+void cat2(int write_out, int is_blocked);
+void cat3(int write_out, int is_blocked);
 
 int main(int argc, char *argv[])
 {
-  //cat1(1);
-  cat2(1);
+  cat1(1,1);
+  //cat2(1,1);
   //cat3(1);
   exit(0);
 }
 
-void cat1(int write_out) {
+void cat1(int write_out, int is_blocked) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
   int m = 123;
 
@@ -84,7 +86,9 @@ void cat1(int write_out) {
       dtime = FLA_Clock();
     
       //FLA_Gemv( FLA_NO_TRANSPOSE, FLA_ONE, A, x, FLA_ONE, yref );
-      FLA_Gemm(FLA_NO_TRANSPOSE, FLA_NO_TRANSPOSE, FLA_ONE, A, B, FLA_ONE, Cref);
+      //FLA_Gemm(FLA_NO_TRANSPOSE, FLA_NO_TRANSPOSE, FLA_ONE, A, B, FLA_ONE, Cref);
+      FLA_Symm( FLA_LEFT, FLA_LOWER_TRIANGULAR, 
+              FLA_ONE, A, B, FLA_ONE, Cref );
  
       /* stop clock */
       dtime = FLA_Clock() - dtime;
@@ -105,14 +109,18 @@ void cat1(int write_out) {
     for ( irep=0; irep<nrepeats; irep++ ){
       /* Copy vector yold to y */
       FLA_Copy( Cold, C );
-    
-      /* start clock */
-      dtime = FLA_Clock();
  
       /* Comment out the below call and call your routine instead */
-      symm_ll_unb_var1( A, B, C );
-      /* stop clock */
-      dtime = FLA_Clock() - dtime;
+      if (is_blocked){
+        dtime = FLA_Clock();
+        symm_ll_blk_var1( A, B, C, 150 );
+        dtime = FLA_Clock() - dtime;
+      }
+      else{
+        dtime = FLA_Clock();
+        symm_ll_unb_var1( A, B, C );
+        dtime = FLA_Clock() - dtime;
+      }
     
       if ( irep == 0 ) 
 	dtime_best = dtime;
@@ -142,18 +150,17 @@ void cat1(int write_out) {
 
   FLA_Finalize( );
 }
-
-void cat2(int write_out) {
+void cat2(int write_out, int is_blocked) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
   int m = 123;
 
   double
-    dtime, dtime_best, 
+    dtime, dtime_best,
     diff;
 
   dtime_best = 0.0;
 
-  FLA_Obj A, B, C; 
+  FLA_Obj A, B, Cunb, Cblk; 
 
   FLA_Obj Cref, Cold;
   
@@ -182,7 +189,8 @@ void cat2(int write_out) {
   for ( n=nfirst; n<= nlast; n+=ninc ){
     dim = n;
     /* Allocate space for the matrices and vectors */
-    FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &C );
+    FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &Cunb );
+    FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &Cblk );
     FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &Cref );
     FLA_Obj_create( FLA_DOUBLE, n, n, 1, n, &Cold );
     FLA_Obj_create( FLA_DOUBLE, n, m, 1, n, &A );
@@ -201,8 +209,8 @@ void cat2(int write_out) {
       dtime = FLA_Clock();
     
       //FLA_Gemv( FLA_NO_TRANSPOSE, FLA_ONE, A, x, FLA_ONE, yref );
-      FLA_Gemm(FLA_NO_TRANSPOSE, FLA_TRANSPOSE, FLA_ONE, A, B, FLA_ONE, Cref);
-      FLA_Gemm(FLA_NO_TRANSPOSE, FLA_TRANSPOSE, FLA_ONE, B, A, FLA_ONE, Cref);
+      FLA_Syr2k( FLA_LOWER_TRIANGULAR, FLA_NO_TRANSPOSE, 
+               FLA_ONE, A, B, FLA_ONE, Cref );
  
       /* stop clock */
       dtime = FLA_Clock() - dtime;
@@ -222,17 +230,30 @@ void cat2(int write_out) {
     /* Time your unblocked Variant 1 */
 
     for ( irep=0; irep<nrepeats; irep++ ){
-      /* Copy vector yold to y */
-      FLA_Copy( Cold, C );
-    
-      /* start clock */
-      dtime = FLA_Clock();
- 
-      /* Comment out the below call and call your routine instead */
-      syr2k_ln_unb_var1( A, B, C );
 
-      /* stop clock */
-      dtime = FLA_Clock() - dtime;
+      /* Copy vector Cold to C */
+      if(is_blocked){
+        FLA_Copy( Cold, Cblk );
+        dtime = FLA_Clock();
+ 
+        /* Comment out the below call and call your routine instead */
+        Syr2k_ln_blk_var1( A, B, Cblk, 150 );
+
+        /* stop clock */
+        dtime = FLA_Clock() - dtime;
+      }else{
+        FLA_Copy( Cold, Cunb );
+
+        /* start clock */
+        dtime = FLA_Clock();
+ 
+        /* Comment out the below call and call your routine instead */
+        syr2k_ln_unb_var1( A, B, Cunb );
+
+        /* stop clock */
+        dtime = FLA_Clock() - dtime;
+      }
+      
     
       if ( irep == 0 ) 
 	dtime_best = dtime;
@@ -240,15 +261,30 @@ void cat2(int write_out) {
 	dtime_best = ( dtime < dtime_best ? dtime : dtime_best );
     }
 
-    diff = FLA_Max_elemwise_diff( C, Cref );
+    if(!is_blocked){
+      diff = FLA_Max_elemwise_diff( Cunb, Cref );
   
-    printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
+      printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
+    }else{
+      FLA_Triangularize( FLA_LOWER_TRIANGULAR, FLA_NONUNIT_DIAG, Cblk );
+      diff = FLA_Max_elemwise_diff( Cblk, Cref );
+
+      //FLA_Obj_show( "Cblk", Cblk, "%11.3e", "Cblk finish" );
+      //FLA_Obj_show( "Cref", Cref, "%11.3e", "Cref finish" );
+
+      printf( "Syr2k_ln_blk_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
+	    dtime_best, diff  );
+    }
+    
 
     our_time = dtime_best;
     fflush( stdout );
 
-    FLA_Obj_free( &C );
+  
+
+    FLA_Obj_free( &Cunb );
+    FLA_Obj_free( &Cblk );
     FLA_Obj_free( &Cold );
     FLA_Obj_free( &Cref );
     FLA_Obj_free( &A );
@@ -262,7 +298,7 @@ void cat2(int write_out) {
   FLA_Finalize( );
 }
 
-void cat3(int write_out) {
+void cat3(int write_out, int is_blocked) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
 
   double
