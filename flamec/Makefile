@@ -31,4 +31,4 @@ test:   driver
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o *~ core *.x output.m
+	rm -f *.o *~ core *.x output.m output.txt

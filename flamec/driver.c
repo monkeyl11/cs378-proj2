@@ -22,8 +22,11 @@ void cat3(int write_out, int is_blocked);
 
 int main(int argc, char *argv[])
 {
+  //clear output,txt
+  fopen("output.txt", "w");
+
   cat1(1,1);
-  //cat2(1,1);
+  cat2(1,1);
   //cat3(1);
   exit(0);
 }
@@ -58,12 +61,15 @@ void cat1(int write_out, int is_blocked) {
   fflush( stdout );
 
   i = 1;
-  FILE *out = fopen("output.txt", "w");
+  FILE *out = fopen("output.txt", "a");
   if (write_out && out == NULL) {
     printf("Failed to open output file\n");
     exit(1);
   }
   int dim; double ref_time; double our_time;
+  char* func_name =  is_blocked ? "symm_ll_blocked"  : "symm_ll";
+  fprintf(out, "\n%s %.d", func_name, ((nlast - nfirst)/ ninc) + 1);
+
   for ( n=nfirst; n<= nlast; n+=ninc ){
     dim = n;
     /* Allocate space for the matrices and vectors */
@@ -130,7 +136,7 @@ void cat1(int write_out, int is_blocked) {
 
     diff = FLA_Max_elemwise_diff( C, Cref );
   
-    printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
+    printf("symm_ll( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
 
     our_time = dtime_best;
@@ -144,11 +150,12 @@ void cat1(int write_out, int is_blocked) {
 
     i++;
     if (write_out) {
-      fprintf(out, "%d %f %f\n", dim, our_time, ref_time);
+      fprintf(out, "\n%d %f %f", dim, our_time, ref_time);
     }
   }
 
   FLA_Finalize( );
+  fclose(out);
 }
 void cat2(int write_out, int is_blocked) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
@@ -180,12 +187,15 @@ void cat2(int write_out, int is_blocked) {
   fflush( stdout );
 
   i = 1;
-  FILE *out = fopen("output.txt", "w");
+  FILE *out = fopen("output.txt", "a");
   if (write_out && out == NULL) {
     printf("Failed to open output file\n");
     exit(1);
   }
   int dim; double ref_time; double our_time;
+
+  char* func_name = is_blocked ? "syr2k_blocked"  : "syr2k";
+  fprintf(out, "\n%s %.d\n", func_name, ((nlast - nfirst)/ ninc) + 1);
   for ( n=nfirst; n<= nlast; n+=ninc ){
     dim = n;
     /* Allocate space for the matrices and vectors */
@@ -296,6 +306,7 @@ void cat2(int write_out, int is_blocked) {
     }
   }
   FLA_Finalize( );
+  fclose(out);
 }
 
 void cat3(int write_out, int is_blocked) {
@@ -327,12 +338,14 @@ void cat3(int write_out, int is_blocked) {
   fflush( stdout );
 
   i = 1;
-  FILE *out = fopen("output.txt", "w");
+  FILE *out = fopen("output.txt", "a");
   if (write_out && out == NULL) {
     printf("Failed to open output file\n");
     exit(1);
   }
   int dim; double ref_time; double our_time;
+  char* func_name =  is_blocked ? "trsv_l_blocked"  : "trsv_l";
+  fprintf(out, "\n%s %.d", func_name, ((nlast - nfirst)/ ninc) + 1);
   for ( n=nfirst; n<= nlast; n+=ninc ){
     dim = n;
     /* Allocate space for the matrices and vectors */
@@ -407,8 +420,9 @@ void cat3(int write_out, int is_blocked) {
 
     i++;
     if (write_out) {
-      fprintf(out, "%d %f %f\n", dim, our_time, ref_time);
+      fprintf(out, "\n%d %f %f", dim, our_time, ref_time);
     }
   }
   FLA_Finalize( );
+  fclose(out);
 }
