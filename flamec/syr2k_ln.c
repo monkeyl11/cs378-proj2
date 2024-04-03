@@ -82,7 +82,7 @@ int syr2k_ln_unb_var1( FLA_Obj A, FLA_Obj B, FLA_Obj C )
   return FLA_SUCCESS;
 }
 
-int Syr2k_ln_blk_var1( FLA_Obj A, FLA_Obj B, FLA_Obj C, int nb_alg )
+int syr2k_ln_blk_var1( FLA_Obj A, FLA_Obj B, FLA_Obj C, int nb_alg )
 {
   FLA_Obj AT,              A0,
           AB,              A1,

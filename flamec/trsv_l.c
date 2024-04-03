@@ -61,6 +61,7 @@ int trsv_l_unb_var1( FLA_Obj L, FLA_Obj y )
   return FLA_SUCCESS;
 }
 
+
 /* Copyright 2024 The University of Texas at Austin  
  
    For licensing information see
@@ -69,8 +70,6 @@ int trsv_l_unb_var1( FLA_Obj L, FLA_Obj y )
    Programmed by: Name of author
                   Email of author
                                                                      */
-
-#include "FLAME.h"
 
 int trsvl_l_blk( FLA_Obj L, FLA_Obj y, int nb_alg )
 {
@@ -106,12 +105,15 @@ int trsvl_l_blk( FLA_Obj L, FLA_Obj y, int nb_alg )
                            yB,                &y2,        b, FLA_BOTTOM );
 
     /*------------------------------------------------------------*/
-
-    //What to do for update?
-
-    //FLA_Dots( FLA_MINUS_ONE, L10, y0, FLA_ONE, y1 );
-    //FLA_Gemv( FLA_NO_TRANSPOSE, FLA_MINUS_ONE, L10, y0, FLA_ONE, y1 );
-
+    
+    FLA_Gemv( FLA_NO_TRANSPOSE, FLA_MINUS_ONE, L10, y0, FLA_ONE, y1 );
+    if (FLA_Obj_length( LBR ) > nb_alg) {
+      trsvl_l_blk( L11, y1, nb_alg);
+    }
+    else {
+      trsv_l_unb_var1(L11, y1);      
+    }
+    
     /*------------------------------------------------------------*/
 
     FLA_Cont_with_3x3_to_2x2( &LTL, /**/ &LTR,       L00, L01, /**/ L02,
@@ -129,3 +131,5 @@ int trsvl_l_blk( FLA_Obj L, FLA_Obj y, int nb_alg )
 
   return FLA_SUCCESS;
 }
+
+

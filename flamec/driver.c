@@ -13,7 +13,7 @@
 int symm_ll_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 int symm_ll_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
 int syr2k_ln_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
-int Syr2k_ln_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
+int syr2k_ln_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
 int trsv_l_unb_var1( FLA_Obj, FLA_Obj );
 int trsvl_l_blk( FLA_Obj, FLA_Obj , int);
 
@@ -28,9 +28,20 @@ int main(int argc, char *argv[])
   ////clear output,txt
   fopen("output.txt", "w");
 
+  printf("Note that in order to see data plotted, you need to run"
+              "plot_output in matlab after running the C code.\n ");
+
   cat1(1,1);
-  //cat2(1,1);
-  //cat3(1,1);
+  printf("\n\n\n\n\n");
+  cat2(1,1);
+  printf("\n\n\n\n\n");
+  cat3(1,1);
+  printf("\n\n\n\n\n");
+  cat1(1,0);
+  printf("\n\n\n\n\n");
+  cat2(1,0);
+  printf("\n\n\n\n\n");
+  cat3(1,0);
   exit(0);
 }
 
@@ -52,6 +63,12 @@ void cat1(int write_out, int is_blocked) {
   FLA_Init( );
 
   /* Every time trial is repeated "repeat" times and the fastest run in recorded */
+  if(is_blocked){
+    printf( "RUN Category 1 blocked.\n" );
+  }else{
+    printf( "RUN Category 1 unblocked.\n" );
+  }
+  
   printf( "%% number of repeats:" );
   scanf( "%d", &nrepeats );
   printf( "%% %d\n", nrepeats );
@@ -160,6 +177,8 @@ void cat1(int write_out, int is_blocked) {
   FLA_Finalize( );
   fclose(out);
 }
+
+
 void cat2(int write_out, int is_blocked) {
   int n, nfirst, nlast, ninc, i, irep, nrepeats;
   int m = 123;
@@ -178,6 +197,11 @@ void cat2(int write_out, int is_blocked) {
   FLA_Init( );
 
   /* Every time trial is repeated "repeat" times and the fastest run in recorded */
+   if(is_blocked){
+    printf( "RUN Category 2 blocked\n" );
+  }else{
+    printf( "RUN Category 2 unblocked\n" );
+  }
   printf( "%% number of repeats:" );
   scanf( "%d", &nrepeats );
   printf( "%% %d\n", nrepeats );
@@ -250,7 +274,7 @@ void cat2(int write_out, int is_blocked) {
         dtime = FLA_Clock();
  
         /* Comment out the below call and call your routine instead */
-        Syr2k_ln_blk_var1( A, B, Cblk, 150 );
+        syr2k_ln_blk_var1( A, B, Cblk, 150 );
 
         /* stop clock */
         dtime = FLA_Clock() - dtime;
@@ -286,7 +310,7 @@ void cat2(int write_out, int is_blocked) {
       //FLA_Obj_show( "Cblk", Cblk, "%11.3e", "Cblk finish" );
       //FLA_Obj_show( "Cref", Cref, "%11.3e", "Cref finish" );
 
-      printf( "Syr2k_ln_blk_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
+      printf( "syr2k_ln_blk_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
     }
     
@@ -329,6 +353,11 @@ void cat3(int write_out, int is_blocked) {
   FLA_Init( );
 
   /* Every time trial is repeated "repeat" times and the fastest run in recorded */
+   if(is_blocked){
+    printf( "RUN Category 3 blocked.\n" );
+  }else{
+    printf( "RUN Category 3 unblocked.\n" );
+  }
   printf( "%% number of repeats:" );
   scanf( "%d", &nrepeats );
   printf( "%% %d\n", nrepeats );
@@ -399,7 +428,7 @@ void cat3(int write_out, int is_blocked) {
  
       /* Comment out the below call and call your routine instead */
       if (is_blocked)
-        trsvl_l_blk( L, x, 2 );
+        trsvl_l_blk( L, x, 1000 );
       else
         trsv_l_unb_var1( L, x );
 
@@ -413,6 +442,10 @@ void cat3(int write_out, int is_blocked) {
     }
 
     diff = FLA_Max_elemwise_diff( xref, x );
+    // FLA_Obj_show( "Xref", xref, "%11.3e", "Xref");
+    // FLA_Obj_show( "X", x, "%11.3e", "X");
+    // FLA_Obj_show( "Y", y, "%11.3e", "Y");
+    // FLA_Obj_show( "L", L, "%11.3e", "L");
     printf( "data_unb_var1( %d, 1:3 ) = [ %d %le %le];\n", i, n,
 	    dtime_best, diff  );
     our_time = dtime_best;

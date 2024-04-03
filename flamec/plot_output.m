@@ -1,6 +1,6 @@
 
-system("make driver");
-system("driver.x");
+% system("make driver");
+% system("driver.x");
 
 
 % taken from mathworks help page
