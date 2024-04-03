@@ -1,3 +1,8 @@
+
+system("make driver");
+system("driver.x");
+
+
 % taken from mathworks help page
 fileID = fopen('output.txt','r');
 formatSpec = '%d %f %f';

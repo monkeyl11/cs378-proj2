@@ -14,20 +14,23 @@ int symm_ll_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 int symm_ll_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
 int syr2k_ln_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
 int Syr2k_ln_blk_var1( FLA_Obj, FLA_Obj, FLA_Obj, int );
-int Trsv_l_unb_var1( FLA_Obj, FLA_Obj, FLA_Obj );
+int trsv_l_unb_var1( FLA_Obj, FLA_Obj );
+int trsvl_l_blk( FLA_Obj, FLA_Obj , int);
 
+
+//0 for none, 1 for unblocked only, 2 for blocked only, 3 for both
 void cat1(int write_out, int is_blocked);
 void cat2(int write_out, int is_blocked);
 void cat3(int write_out, int is_blocked);
 
 int main(int argc, char *argv[])
 {
-  //clear output,txt
+  ////clear output,txt
   fopen("output.txt", "w");
 
-  //cat1(1,1);
+  cat1(1,1);
   //cat2(1,1);
-  cat3(1,1);
+  //cat3(1,1);
   exit(0);
 }
 
@@ -389,16 +392,16 @@ void cat3(int write_out, int is_blocked) {
 
     for ( irep=0; irep<nrepeats; irep++ ){
       /* Copy vector yold to y */
-      FLA_Copy( xold, x );
+      FLA_Copy( y, x );
     
       /* start clock */
       dtime = FLA_Clock();
  
       /* Comment out the below call and call your routine instead */
       if (is_blocked)
-        //do this
+        trsvl_l_blk( L, x, 2 );
       else
-        Trsv_l_unb_var1( L, x, y );
+        trsv_l_unb_var1( L, x );
 
       /* stop clock */
       dtime = FLA_Clock() - dtime;
