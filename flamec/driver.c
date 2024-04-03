@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
   //clear output,txt
   fopen("output.txt", "w");
 
-  cat1(1,1);
-  cat2(1,1);
-  //cat3(1);
+  //cat1(1,1);
+  //cat2(1,1);
+  cat3(1,1);
   exit(0);
 }
 
@@ -395,7 +395,10 @@ void cat3(int write_out, int is_blocked) {
       dtime = FLA_Clock();
  
       /* Comment out the below call and call your routine instead */
-      Trsv_l_unb_var1( L, x, y );
+      if (is_blocked)
+        //do this
+      else
+        Trsv_l_unb_var1( L, x, y );
 
       /* stop clock */
       dtime = FLA_Clock() - dtime;
